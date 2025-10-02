@@ -1,0 +1,407 @@
+/* Options page styles for Page Summarizer Chrome extension */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #1f2937;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  min-height: 100vh;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  padding: 32px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  background: #dcfce7;
+  color: #166534;
+  border-bottom: 1px solid #bbf7d0;
+  animation: slideDown 0.3s ease;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.content {
+  padding: 32px;
+}
+
+.section {
+  margin-bottom: 48px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.section-description {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+/* Provider Selection */
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.provider-option {
+  cursor: pointer;
+}
+
+.provider-option input[type="radio"] {
+  display: none;
+}
+
+.provider-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.provider-option input[type="radio"]:checked + .provider-card {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.provider-card:hover {
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.provider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.provider-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.provider-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.provider-option input[type="radio"]:checked + .provider-card .provider-badge {
+  background: #2563eb;
+  color: white;
+}
+
+.provider-card p {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* API Key Configuration */
+.api-key-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.help-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.help-link:hover {
+  text-decoration: underline;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 40px 12px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.toggle-visibility {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #6b7280;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.toggle-visibility:hover {
+  color: #374151;
+}
+
+.key-status {
+  margin-top: 6px;
+  font-size: 12px;
+  min-height: 16px;
+}
+
+.key-status.valid {
+  color: #059669;
+}
+
+.key-status.invalid {
+  color: #dc2626;
+}
+
+/* Preferences */
+.preference-group {
+  margin-bottom: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.checkbox-label:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.checkbox {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checkbox:checked + .checkmark {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.checkbox:checked + .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-content strong {
+  color: #111827;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.checkbox-content p {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Cache Management */
+.cache-info {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.cache-stats {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 32px;
+  background: #f9fafb;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.footer-info {
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.footer-info p {
+  margin-bottom: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .container {
+    margin: 0;
+  }
+  
+  .header {
+    padding: 24px 16px;
+  }
+  
+  .header h1 {
+    font-size: 24px;
+  }
+  
+  .content {
+    padding: 24px 16px;
+  }
+  
+  .provider-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer {
+    padding: 24px 16px;
+  }
+  
+  .footer-actions {
+    flex-direction: column;
+  }
+}

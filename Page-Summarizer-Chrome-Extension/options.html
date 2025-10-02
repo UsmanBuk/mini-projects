@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Summarizer - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Page Summarizer Settings</h1>
+      <p class="subtitle">Configure your AI providers and preferences</p>
+    </header>
+
+    <div id="status" class="status hidden">
+      <div class="status-icon">✅</div>
+      <span id="status-text">Settings saved successfully!</span>
+    </div>
+
+    <div class="content">
+      <!-- AI Provider Selection -->
+      <section class="section">
+        <h2>AI Provider</h2>
+        <p class="section-description">Choose which AI service to use for summarization</p>
+        
+        <div class="provider-grid">
+          <label class="provider-option">
+            <input type="radio" name="provider" value="openai" checked>
+            <div class="provider-card">
+              <div class="provider-header">
+                <h3>OpenAI</h3>
+                <span class="provider-badge">GPT-3.5</span>
+              </div>
+              <p>Fast and reliable summarization with ChatGPT</p>
+            </div>
+          </label>
+
+          <label class="provider-option">
+            <input type="radio" name="provider" value="anthropic">
+            <div class="provider-card">
+              <div class="provider-header">
+                <h3>Anthropic</h3>
+                <span class="provider-badge">Claude</span>
+              </div>
+              <p>High-quality summaries with Claude AI</p>
+            </div>
+          </label>
+
+          <label class="provider-option">
+            <input type="radio" name="provider" value="gemini">
+            <div class="provider-card">
+              <div class="provider-header">
+                <h3>Google</h3>
+                <span class="provider-badge">Gemini</span>
+              </div>
+              <p>Google's advanced language model</p>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- API Keys Configuration -->
+      <section class="section">
+        <h2>API Keys</h2>
+        <p class="section-description">Your API keys are stored securely on your device and never shared</p>
+
+        <div class="api-key-group">
+          <label for="openai-key" class="form-label">
+            <span>OpenAI API Key</span>
+            <a href="https://platform.openai.com/api-keys" target="_blank" class="help-link">Get API Key</a>
+          </label>
+          <div class="input-group">
+            <input type="password" id="openai-key" placeholder="sk-..." class="form-input">
+            <button type="button" class="toggle-visibility" data-target="openai-key">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <div class="key-status" id="openai-status"></div>
+        </div>
+
+        <div class="api-key-group">
+          <label for="anthropic-key" class="form-label">
+            <span>Anthropic API Key</span>
+            <a href="https://console.anthropic.com/" target="_blank" class="help-link">Get API Key</a>
+          </label>
+          <div class="input-group">
+            <input type="password" id="anthropic-key" placeholder="sk-ant-..." class="form-input">
+            <button type="button" class="toggle-visibility" data-target="anthropic-key">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <div class="key-status" id="anthropic-status"></div>
+        </div>
+
+        <div class="api-key-group">
+          <label for="gemini-key" class="form-label">
+            <span>Google Gemini API Key</span>
+            <a href="https://makersuite.google.com/app/apikey" target="_blank" class="help-link">Get API Key</a>
+          </label>
+          <div class="input-group">
+            <input type="password" id="gemini-key" placeholder="AIza..." class="form-input">
+            <button type="button" class="toggle-visibility" data-target="gemini-key">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <div class="key-status" id="gemini-status"></div>
+        </div>
+      </section>
+
+      <!-- Preferences -->
+      <section class="section">
+        <h2>Preferences</h2>
+        
+        <div class="preference-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="auto-summarize" class="checkbox">
+            <span class="checkmark"></span>
+            <div class="checkbox-content">
+              <strong>Auto-summarize pages</strong>
+              <p>Automatically generate summaries when visiting new pages</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="preference-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="cache-enabled" class="checkbox" checked>
+            <span class="checkmark"></span>
+            <div class="checkbox-content">
+              <strong>Enable caching</strong>
+              <p>Cache summaries to avoid duplicate API calls for the same page</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="preference-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="show-word-count" class="checkbox" checked>
+            <span class="checkmark"></span>
+            <div class="checkbox-content">
+              <strong>Show word count</strong>
+              <p>Display word count information in the popup</p>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Cache Management -->
+      <section class="section">
+        <h2>Cache Management</h2>
+        <p class="section-description">Manage stored summaries and cached data</p>
+        
+        <div class="cache-info" id="cache-info">
+          <div class="cache-stats">
+            <span id="cache-count">0</span> summaries cached
+          </div>
+        </div>
+        
+        <button id="clear-cache-btn" class="btn btn-secondary">
+          Clear All Cached Summaries
+        </button>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-actions">
+        <button id="save-btn" class="btn btn-primary">Save Settings</button>
+        <button id="reset-btn" class="btn btn-secondary">Reset to Defaults</button>
+      </div>
+      
+      <div class="footer-info">
+        <p>Page Summarizer v1.0.0</p>
+        <p>Your API keys are stored locally and never transmitted except to their respective AI providers.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

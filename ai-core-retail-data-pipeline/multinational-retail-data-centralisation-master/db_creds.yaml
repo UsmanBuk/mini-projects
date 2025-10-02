@@ -1,0 +1,16 @@
+RDS_HOST: data-handling-project-readonly.cq2e8zno855e.eu-west-1.rds.amazonaws.com
+RDS_PASSWORD: AiCore2022
+RDS_USER: aicore_admin
+RDS_DATABASE_TYPE: postgresql
+RDS_DATABASE: postgres
+RDS_PORT: 5432
+DB_API: psycopg2
+
+
+LOCAL_HOST: LOCALhost
+LOCAL_PASSWORD: 
+LOCAL_USER: postgres
+LOCAL_DATABASE_TYPE: postgresql
+LOCAL_DATABASE: Sales_Data
+LOCAL_PORT: 5432
+LOCAL_DB_API: psycopg2

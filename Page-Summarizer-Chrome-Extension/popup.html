@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Summarizer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Page Summarizer</h1>
+      <button id="settings-btn" class="settings-btn" title="Open Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6M8.5 8.5l4.5 4.5m0-9l4.5 4.5M1 12h6m6 0h6"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div id="status" class="status hidden">
+      <div class="status-icon">ℹ️</div>
+      <span id="status-text">Ready</span>
+    </div>
+
+    <div id="loading" class="loading hidden">
+      <div class="loading-spinner"></div>
+      <span>Generating summary...</span>
+    </div>
+
+    <div id="error" class="error hidden">
+      <div class="error-icon">⚠️</div>
+      <span id="error-text"></span>
+    </div>
+
+    <div id="page-info" class="page-info hidden">
+      <h3 id="page-title" class="page-title"></h3>
+      <div class="page-meta">
+        <span id="word-count" class="word-count"></span>
+        <span id="provider-used" class="provider-used"></span>
+      </div>
+    </div>
+
+    <div id="summary-container" class="summary-container hidden">
+      <div class="summary-header">
+        <h4>Summary</h4>
+        <button id="copy-btn" class="copy-btn" title="Copy to clipboard">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+      </div>
+      <div id="summary-text" class="summary-text"></div>
+      <div class="summary-actions">
+        <button id="regenerate-btn" class="btn btn-secondary">Regenerate</button>
+      </div>
+    </div>
+
+    <div id="no-setup" class="no-setup hidden">
+      <div class="no-setup-icon">🔧</div>
+      <h3>Setup Required</h3>
+      <p>Please configure your API keys in the settings to start summarizing pages.</p>
+      <button id="open-settings-btn" class="btn btn-primary">Open Settings</button>
+    </div>
+
+    <div id="no-content" class="no-content hidden">
+      <div class="no-content-icon">📄</div>
+      <h3>No Content Found</h3>
+      <p>This page doesn't have enough content to summarize, or it may still be loading.</p>
+      <button id="retry-btn" class="btn btn-secondary">Retry</button>
+    </div>
+
+    <div class="actions">
+      <button id="summarize-btn" class="btn btn-primary" disabled>
+        Summarize This Page
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

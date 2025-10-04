@@ -114,15 +114,23 @@ function toggleWindow() {
     mainWindow.webContents.send('window-state-changed', { isExpanded: false });
   } else {
     const savedBounds = store.get('windowBounds');
-    const defaultX = screenWidth - EXPANDED_WIDTH - MARGIN_FROM_EDGE;
-    const defaultY = screenHeight - EXPANDED_HEIGHT - MARGIN_FROM_EDGE;
 
+    // Calculate proper expanded position - centered in available screen space
+    const defaultX = Math.max(20, screenWidth - EXPANDED_WIDTH - MARGIN_FROM_EDGE);
+    const defaultY = Math.max(20, screenHeight - EXPANDED_HEIGHT - MARGIN_FROM_EDGE);
+
+    // Force use of full expanded size and proper position
     mainWindow.setBounds({
-      x: savedBounds?.x ?? defaultX,
-      y: savedBounds?.y ?? defaultY,
-      width: savedBounds?.width || EXPANDED_WIDTH,
-      height: savedBounds?.height || EXPANDED_HEIGHT
+      x: defaultX,
+      y: defaultY,
+      width: EXPANDED_WIDTH,
+      height: EXPANDED_HEIGHT
     });
+
+    // Ensure window is resizable and visible
+    mainWindow.setResizable(true);
+    mainWindow.show();
+    mainWindow.focus();
 
     isExpanded = true;
     mainWindow.webContents.send('window-state-changed', { isExpanded: true });

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Send, Trash2, Download, MessageSquare, NotebookPen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Send, Trash2, Download, MessageSquare, NotebookPen, ChevronLeft, ChevronRight, Minimize2 } from 'lucide-react';
 import NotesList from './NotesList';
 import ChatView from './ChatView';
 import NoteInput from './NoteInput';
@@ -86,12 +86,15 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
           </button>
         </div>
 
-        <button
-          onClick={onToggle}
-          className="no-drag p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-        >
-          <X className="w-4 h-4 text-white/80" />
-        </button>
+        <div className="flex items-center gap-2 no-drag">
+          <button
+            onClick={onToggle}
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            title="Minimize to floating button"
+          >
+            <Minimize2 className="w-4 h-4 text-white/80" />
+          </button>
+        </div>
       </div>
 
       {activeView === 'notes' ? (

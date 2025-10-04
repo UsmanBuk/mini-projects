@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react'
+import { User, Lock, Mail, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react'
 
 interface LoginScreenProps {
   onLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
@@ -11,6 +11,7 @@ interface LoginScreenProps {
 export default function LoginScreen({ onLogin, onContinueOffline, isLoading }: LoginScreenProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,13 +94,25 @@ export default function LoginScreen({ onLogin, onContinueOffline, isLoading }: L
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-5 h-5" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   disabled={isLoading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -144,7 +157,7 @@ export default function LoginScreen({ onLogin, onContinueOffline, isLoading }: L
             <p className="text-white/60 text-sm">
               Don't have an account?{' '}
               <a 
-                href="http://localhost:3000/auth/signup" 
+                href="http://localhost:3001/auth/signup" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 transition-colors"

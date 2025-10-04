@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "Bash(npm start)",
+      "Bash(git restore:*)",
+      "Bash(tasklist)",
+      "Bash(Get-Process -Name electron -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(wmic:*)",
+      "Bash(Stop-Process -Name node -Force -ErrorAction SilentlyContinue)",
+      "Bash(npm install:*)",
+      "Bash(set NODE_ENV=development)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

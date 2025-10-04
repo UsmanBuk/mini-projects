@@ -11,6 +11,7 @@ function App() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isOnline: false,
     pendingChanges: 0,
@@ -163,12 +164,6 @@ function App() {
     return result;
   };
 
-  const handleSignUp = async (email: string, password: string) => {
-    setAuthLoading(true);
-    const result = await window.electronAPI.authSignUp(email, password);
-    setAuthLoading(false);
-    return result;
-  };
 
   const handleLogout = async () => {
     await window.electronAPI.authSignOut();
@@ -177,7 +172,10 @@ function App() {
   };
 
   const handleContinueOffline = async () => {
+    console.log('Continue offline clicked');
     await window.electronAPI.continueOffline();
+    // Mark as offline mode to bypass authentication
+    setIsOfflineMode(true);
     setIsAuthenticated(false);
     setUser(null);
   };
@@ -204,8 +202,8 @@ function App() {
     }
   };
 
-  // Show login screen if authentication status is unknown or user is not authenticated
-  if (isAuthenticated === null) {
+  // Show login screen if authentication status is unknown
+  if (isAuthenticated === null && !isOfflineMode) {
     return (
       <div className="w-full h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>
@@ -213,12 +211,13 @@ function App() {
     );
   }
 
-  if (!isAuthenticated) {
+  // Show login screen if not authenticated and not in offline mode
+  if (!isAuthenticated && !isOfflineMode) {
     return (
       <div className="w-full h-screen overflow-hidden">
         <LoginScreen
           onLogin={handleLogin}
-          onSignUp={handleSignUp}
+          onContinueOffline={handleContinueOffline}
           isLoading={authLoading}
         />
       </div>

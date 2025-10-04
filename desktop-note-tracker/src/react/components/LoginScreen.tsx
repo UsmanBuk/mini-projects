@@ -4,15 +4,13 @@ import { User, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react'
 
 interface LoginScreenProps {
   onLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  onSignUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  onContinueOffline?: () => void
   isLoading: boolean
 }
 
-export default function LoginScreen({ onLogin, onSignUp, isLoading }: LoginScreenProps) {
-  const [isSignUp, setIsSignUp] = useState(false)
+export default function LoginScreen({ onLogin, onContinueOffline, isLoading }: LoginScreenProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,41 +22,20 @@ export default function LoginScreen({ onLogin, onSignUp, isLoading }: LoginScree
       return
     }
 
-    if (isSignUp && password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
     if (password.length < 6) {
       setError('Password must be at least 6 characters')
       return
     }
 
     try {
-      const result = isSignUp
-        ? await onSignUp(email, password)
-        : await onLogin(email, password)
+      const result = await onLogin(email, password)
 
       if (!result.success) {
         setError(result.error || 'Authentication failed')
-      } else if (isSignUp) {
-        setError('')
-        // Show success message for sign up
-        setError('Account created! Please check your email to verify your account, then sign in.')
-        setIsSignUp(false)
-        setPassword('')
-        setConfirmPassword('')
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred')
     }
-  }
-
-  const toggleMode = () => {
-    setIsSignUp(!isSignUp)
-    setError('')
-    setPassword('')
-    setConfirmPassword('')
   }
 
   return (
@@ -84,7 +61,7 @@ export default function LoginScreen({ onLogin, onSignUp, isLoading }: LoginScree
               Welcome to Note Tracker
             </h1>
             <p className="text-white/60 text-sm">
-              {isSignUp ? 'Create your account to sync notes' : 'Sign in to sync your notes across devices'}
+              Sign in to sync your notes across devices
             </p>
           </div>
 
@@ -126,33 +103,6 @@ export default function LoginScreen({ onLogin, onSignUp, isLoading }: LoginScree
               </div>
             </div>
 
-            {/* Confirm Password Field (Sign Up Only) */}
-            <AnimatePresence>
-              {isSignUp && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <label className="block text-white/80 text-sm font-medium mb-2">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-5 h-5" />
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm your password"
-                      className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      disabled={isLoading}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Error Message */}
             <AnimatePresence>
               {error && (
@@ -181,33 +131,41 @@ export default function LoginScreen({ onLogin, onSignUp, isLoading }: LoginScree
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  Signing In...
                 </>
               ) : (
-                isSignUp ? 'Create Account' : 'Sign In'
+                'Sign In'
               )}
             </button>
           </form>
 
-          {/* Toggle Mode */}
+          {/* Sign Up Link */}
           <div className="mt-6 text-center">
-            <button
-              onClick={toggleMode}
-              disabled={isLoading}
-              className="text-white/60 hover:text-white text-sm transition-colors disabled:opacity-50"
-            >
-              {isSignUp
-                ? 'Already have an account? Sign in'
-                : "Don't have an account? Create one"
-              }
-            </button>
+            <p className="text-white/60 text-sm">
+              Don't have an account?{' '}
+              <a 
+                href="http://localhost:3000/auth/signup" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                Sign up on the web
+              </a>
+            </p>
           </div>
 
           {/* Offline Mode */}
           <div className="mt-4 text-center">
             <button
-              onClick={() => window.electronAPI?.continueOffline?.()}
-              className="text-white/40 hover:text-white/60 text-xs transition-colors"
+              type="button"
+              onClick={() => {
+                console.log('Offline button clicked');
+                if (onContinueOffline) {
+                  onContinueOffline();
+                }
+              }}
+              disabled={isLoading}
+              className="text-white/40 hover:text-white/60 text-xs transition-colors disabled:opacity-50"
             >
               Continue in offline mode
             </button>

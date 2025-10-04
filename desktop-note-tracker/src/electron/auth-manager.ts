@@ -83,12 +83,19 @@ export class AuthManager {
     try {
       const { data, error } = await this.supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          emailRedirectTo: undefined,
+          // Disable email confirmation
+          data: {
+            email_confirmed: true
+          }
+        }
       })
 
       if (error) throw error
 
-      // For email confirmation flow, we might not get a session immediately
+      // Save session immediately without email confirmation
       if (data.session) {
         this.saveSession(data.session)
       }

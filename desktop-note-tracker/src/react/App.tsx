@@ -2,12 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import FloatingButton from './components/FloatingButton';
 import ExpandedView from './components/ExpandedView';
-import { Note, ChatMessage } from './types';
+import LoginScreen from './components/LoginScreen';
+import { Note, ChatMessage, User, SyncStatus } from './types';
 
 function App() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>({
+    isOnline: false,
+    pendingChanges: 0,
+    lastSyncTime: 0,
+    isAuthenticated: false
+  });
+  const [authLoading, setAuthLoading] = useState(false);
+  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
 
   useEffect(() => {
     window.electronAPI.getWindowState().then(state => {
@@ -18,8 +29,28 @@ function App() {
       setIsExpanded(data.isExpanded);
     });
 
+    // Check authentication status
+    checkAuthStatus();
+
+    // Set up auth state listener
+    window.electronAPI.onAuthStateChanged((authData) => {
+      setIsAuthenticated(authData.isAuthenticated);
+      setUser(authData.user);
+      updateSyncStatus();
+
+      if (authData.isAuthenticated && notes.length > 0 && !showMigrationPrompt) {
+        // Prompt user to migrate existing data
+        setShowMigrationPrompt(true);
+      }
+    });
+
     loadNotes();
     loadChatHistory();
+    updateSyncStatus();
+
+    // Update sync status periodically
+    const syncInterval = setInterval(updateSyncStatus, 10000);
+    return () => clearInterval(syncInterval);
   }, []);
 
   const loadNotes = async () => {
@@ -117,6 +148,83 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  // Authentication functions
+  const checkAuthStatus = async () => {
+    const authenticated = await window.electronAPI.authIsAuthenticated();
+    const currentUser = await window.electronAPI.authGetUser();
+    setIsAuthenticated(authenticated);
+    setUser(currentUser);
+  };
+
+  const handleLogin = async (email: string, password: string) => {
+    setAuthLoading(true);
+    const result = await window.electronAPI.authSignIn(email, password);
+    setAuthLoading(false);
+    return result;
+  };
+
+  const handleSignUp = async (email: string, password: string) => {
+    setAuthLoading(true);
+    const result = await window.electronAPI.authSignUp(email, password);
+    setAuthLoading(false);
+    return result;
+  };
+
+  const handleLogout = async () => {
+    await window.electronAPI.authSignOut();
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
+  const handleContinueOffline = async () => {
+    await window.electronAPI.continueOffline();
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
+  // Sync functions
+  const updateSyncStatus = async () => {
+    const status = await window.electronAPI.syncGetStatus();
+    setSyncStatus(status);
+  };
+
+  const handleForceSync = async () => {
+    await window.electronAPI.syncForceSync();
+    await updateSyncStatus();
+    await loadNotes(); // Refresh notes after sync
+  };
+
+  const handleMigrateData = async () => {
+    try {
+      await window.electronAPI.syncMigrateData();
+      setShowMigrationPrompt(false);
+      await updateSyncStatus();
+    } catch (error) {
+      console.error('Migration failed:', error);
+    }
+  };
+
+  // Show login screen if authentication status is unknown or user is not authenticated
+  if (isAuthenticated === null) {
+    return (
+      <div className="w-full h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="w-full h-screen overflow-hidden">
+        <LoginScreen
+          onLogin={handleLogin}
+          onSignUp={handleSignUp}
+          isLoading={authLoading}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-screen overflow-hidden">
       <AnimatePresence mode="wait">
@@ -133,6 +241,13 @@ function App() {
             onSendMessage={handleSendMessage}
             onClearChat={handleClearChat}
             onExport={handleExport}
+            user={user}
+            syncStatus={syncStatus}
+            onSync={handleForceSync}
+            onLogout={handleLogout}
+            showMigrationPrompt={showMigrationPrompt}
+            onMigrateData={handleMigrateData}
+            onDismissMigration={() => setShowMigrationPrompt(false)}
           />
         )}
       </AnimatePresence>

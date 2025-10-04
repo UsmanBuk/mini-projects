@@ -12,6 +12,24 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface SyncStatus {
+  isOnline: boolean;
+  pendingChanges: number;
+  lastSyncTime: number;
+  isAuthenticated: boolean;
+}
+
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+}
+
+export interface User {
+  id: string;
+  email?: string;
+  [key: string]: any;
+}
+
 export interface ElectronAPI {
   toggleWindow: () => Promise<void>;
   getWindowState: () => Promise<{ isExpanded: boolean }>;
@@ -28,6 +46,23 @@ export interface ElectronAPI {
 
   exportNotes: (format: 'json' | 'markdown') => Promise<{ fileName: string; content: string }>;
   sendToClaude: (message: string, notes: Note[], chatHistory: ChatMessage[]) => Promise<{ success: boolean; content?: string; error?: string }>;
+
+  // Authentication
+  authSignIn: (email: string, password: string) => Promise<AuthResult>;
+  authSignUp: (email: string, password: string) => Promise<AuthResult>;
+  authSignOut: () => Promise<void>;
+  authGetSession: () => Promise<any>;
+  authGetUser: () => Promise<User | null>;
+  authIsAuthenticated: () => Promise<boolean>;
+  onAuthStateChanged: (callback: (data: { isAuthenticated: boolean; user: User | null }) => void) => void;
+
+  // Sync
+  syncGetStatus: () => Promise<SyncStatus>;
+  syncForceSync: () => Promise<void>;
+  syncMigrateData: () => Promise<void>;
+
+  // Offline mode
+  continueOffline: () => Promise<{ success: boolean }>;
 }
 
 declare global {

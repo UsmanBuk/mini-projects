@@ -16,10 +16,14 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../shared/**/*"
   ],
   "exclude": [
     "node_modules",

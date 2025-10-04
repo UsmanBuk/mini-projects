@@ -4,7 +4,8 @@ import { X, Send, Trash2, Download, MessageSquare, NotebookPen, ChevronLeft, Che
 import NotesList from './NotesList';
 import ChatView from './ChatView';
 import NoteInput from './NoteInput';
-import { Note, ChatMessage } from '../types';
+import { Note, ChatMessage, User, SyncStatus as SyncStatusType } from '../types';
+import SyncStatus from './SyncStatus';
 
 interface ExpandedViewProps {
   notes: Note[];
@@ -15,6 +16,13 @@ interface ExpandedViewProps {
   onSendMessage: (message: string) => Promise<void>;
   onClearChat: () => Promise<void>;
   onExport: (format: 'json' | 'markdown') => Promise<void>;
+  user?: User | null;
+  syncStatus?: SyncStatusType;
+  onSync?: () => void;
+  onLogout?: () => void;
+  showMigrationPrompt?: boolean;
+  onMigrateData?: () => void;
+  onDismissMigration?: () => void;
 }
 
 const ExpandedView: React.FC<ExpandedViewProps> = ({
@@ -25,7 +33,14 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
   onDeleteNote,
   onSendMessage,
   onClearChat,
-  onExport
+  onExport,
+  user,
+  syncStatus,
+  onSync,
+  onLogout,
+  showMigrationPrompt,
+  onMigrateData,
+  onDismissMigration
 }) => {
   const [activeView, setActiveView] = useState<'notes' | 'chat'>('notes');
   const [isNotesCollapsed, setIsNotesCollapsed] = useState(false);
@@ -60,6 +75,51 @@ const ExpandedView: React.FC<ExpandedViewProps> = ({
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className="w-full h-full glass rounded-2xl shadow-2xl flex flex-col overflow-hidden"
     >
+      {/* Migration Prompt */}
+      {showMigrationPrompt && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-blue-500/20 border-b border-blue-500/50 text-blue-200"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Migrate your local data to the cloud?</h3>
+              <p className="text-sm text-blue-200/80">Sync your existing notes and chat history across all devices.</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={onMigrateData}
+                className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition-colors"
+              >
+                Migrate
+              </button>
+              <button
+                onClick={onDismissMigration}
+                className="px-3 py-1 text-blue-200 hover:text-white text-sm transition-colors"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Sync Status */}
+      {syncStatus && (
+        <div className="p-3 border-b border-white/10">
+          <SyncStatus
+            isOnline={syncStatus.isOnline}
+            isAuthenticated={syncStatus.isAuthenticated}
+            pendingChanges={syncStatus.pendingChanges}
+            lastSyncTime={syncStatus.lastSyncTime}
+            isSyncing={false}
+            onSync={onSync}
+            onLogout={onLogout}
+          />
+        </div>
+      )}
+
       <div className="drag-region flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center gap-3 no-drag">
           <button

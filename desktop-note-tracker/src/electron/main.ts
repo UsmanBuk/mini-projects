@@ -2,6 +2,8 @@ import { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } from 'elec
 import Store from 'electron-store';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import { AuthManager } from './auth-manager';
+import { SyncService } from './sync-service';
 
 // Load environment variables from .env file
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
@@ -18,10 +20,17 @@ const store = new Store<{
   windowBounds: WindowBounds;
   notes: any[];
   chatHistory: any[];
+  session: any;
+  user: any;
+  lastSyncTime: number;
+  pendingNotes: any[];
+  pendingMessages: any[];
 }>();
 
 let mainWindow: BrowserWindow | null = null;
 let isExpanded = false;
+let authManager: AuthManager | null = null;
+let syncService: SyncService | null = null;
 
 const BUTTON_SIZE = 60;
 const EXPANDED_WIDTH = 400;
@@ -158,8 +167,39 @@ function focusNoteInput() {
   mainWindow.focus();
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createWindow();
+
+  // Initialize auth and sync services
+  try {
+    authManager = new AuthManager();
+    syncService = new SyncService(store as any, authManager.getSupabaseClient());
+
+    // Set up auth state listener
+    authManager.onAuthStateChange((session) => {
+      if (session) {
+        syncService?.setUserId(session.user.id);
+        mainWindow?.webContents.send('auth-state-changed', {
+          isAuthenticated: true,
+          user: session.user
+        });
+      } else {
+        syncService?.setUserId(null);
+        mainWindow?.webContents.send('auth-state-changed', {
+          isAuthenticated: false,
+          user: null
+        });
+      }
+    });
+
+    // Check for existing session
+    const existingSession = authManager.getSession();
+    if (existingSession) {
+      syncService.setUserId(existingSession.user.id);
+    }
+  } catch (error) {
+    console.error('Failed to initialize auth/sync services:', error);
+  }
 
   globalShortcut.register('CommandOrControl+Shift+N', toggleWindow);
   globalShortcut.register('CommandOrControl+Shift+Q', focusNoteInput);
@@ -189,18 +229,28 @@ ipcMain.handle('get-notes', () => {
   return store.get('notes', []);
 });
 
-ipcMain.handle('save-note', (_, note) => {
-  const notes = store.get('notes', []);
-  notes.unshift(note);
-  store.set('notes', notes);
-  return notes;
+ipcMain.handle('save-note', async (_, note) => {
+  if (syncService) {
+    return await syncService.saveNoteLocally(note);
+  } else {
+    // Fallback to local storage only
+    const notes = store.get('notes', []);
+    notes.unshift(note);
+    store.set('notes', notes);
+    return notes;
+  }
 });
 
-ipcMain.handle('delete-note', (_, noteId) => {
-  const notes = store.get('notes', []);
-  const updatedNotes = notes.filter(note => note.id !== noteId);
-  store.set('notes', updatedNotes);
-  return updatedNotes;
+ipcMain.handle('delete-note', async (_, noteId) => {
+  if (syncService) {
+    return await syncService.deleteNoteLocally(noteId);
+  } else {
+    // Fallback to local storage only
+    const notes = store.get('notes', []);
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+    store.set('notes', updatedNotes);
+    return updatedNotes;
+  }
 });
 
 ipcMain.handle('get-chat-history', () => {
@@ -287,4 +337,64 @@ ipcMain.handle('send-to-claude', async (_, message: string, notes: any[], chatHi
     console.error('Claude API Error:', error);
     return { success: false, error: error.message };
   }
+});
+
+// Authentication handlers
+ipcMain.handle('auth-sign-in', async (_, email: string, password: string) => {
+  if (!authManager) {
+    return { success: false, error: 'Authentication service not available' };
+  }
+  return await authManager.signIn(email, password);
+});
+
+ipcMain.handle('auth-sign-up', async (_, email: string, password: string) => {
+  if (!authManager) {
+    return { success: false, error: 'Authentication service not available' };
+  }
+  return await authManager.signUp(email, password);
+});
+
+ipcMain.handle('auth-sign-out', async () => {
+  if (!authManager) return;
+  await authManager.signOut();
+});
+
+ipcMain.handle('auth-get-session', () => {
+  return authManager?.getSession() || null;
+});
+
+ipcMain.handle('auth-get-user', () => {
+  return authManager?.getUser() || null;
+});
+
+ipcMain.handle('auth-is-authenticated', () => {
+  return authManager?.isAuthenticated() || false;
+});
+
+// Sync handlers
+ipcMain.handle('sync-get-status', () => {
+  return syncService?.getSyncStatus() || {
+    isOnline: false,
+    pendingChanges: 0,
+    lastSyncTime: 0,
+    isAuthenticated: false
+  };
+});
+
+ipcMain.handle('sync-force-sync', async () => {
+  if (!syncService) return;
+  await syncService.forcSync();
+});
+
+ipcMain.handle('sync-migrate-data', async () => {
+  if (!syncService) {
+    throw new Error('Sync service not available');
+  }
+  await syncService.migrateLocalDataToCloud();
+});
+
+// Offline mode
+ipcMain.handle('continue-offline', () => {
+  // Continue without authentication
+  return { success: true };
 });

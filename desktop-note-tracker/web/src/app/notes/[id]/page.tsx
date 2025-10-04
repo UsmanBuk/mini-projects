@@ -3,8 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Note } from '@shared/types'
-import { formatDateTime } from '@shared/utils'
+import { Note } from '../../../../shared/types'
+
+const formatDateTime = (timestamp: string): string => {
+  const date = new Date(timestamp)
+  return date.toLocaleString()
+}
 import { ArrowLeft, Save, Tag, X, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 

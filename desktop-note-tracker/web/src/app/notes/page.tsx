@@ -3,8 +3,24 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Note } from '@shared/types'
-import { formatTimestamp, debounce } from '@shared/utils'
+import { Note } from '../../../shared/types'
+
+const formatTimestamp = (timestamp: string): string => {
+  const date = new Date(timestamp)
+  return date.toLocaleString()
+}
+
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
 import {
   Plus,
   Search,

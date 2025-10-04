@@ -27,6 +27,7 @@ export interface ElectronAPI {
   clearChatHistory: () => Promise<ChatMessage[]>;
 
   exportNotes: (format: 'json' | 'markdown') => Promise<{ fileName: string; content: string }>;
+  sendToClaude: (message: string, notes: Note[], chatHistory: ChatMessage[]) => Promise<{ success: boolean; content?: string; error?: string }>;
 }
 
 declare global {

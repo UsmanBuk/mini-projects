@@ -14,5 +14,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveChatMessage: (message) => ipcRenderer.invoke('save-chat-message', message),
   clearChatHistory: () => ipcRenderer.invoke('clear-chat-history'),
 
-  exportNotes: (format) => ipcRenderer.invoke('export-notes', format)
+  exportNotes: (format) => ipcRenderer.invoke('export-notes', format),
+  sendToClaude: (message, notes, chatHistory) => ipcRenderer.invoke('send-to-claude', message, notes, chatHistory)
 });

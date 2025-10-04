@@ -14,7 +14,13 @@
     "dist": "npm run build && electron-builder",
     "postinstall": "electron-builder install-app-deps"
   },
-  "keywords": ["electron", "react", "notes", "ai", "assistant"],
+  "keywords": [
+    "electron",
+    "react",
+    "notes",
+    "ai",
+    "assistant"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -44,6 +50,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.17.0",
+    "dotenv": "^17.2.3",
     "electron-store": "^8.1.0",
     "framer-motion": "^10.18.0",
     "lucide-react": "^0.312.0",

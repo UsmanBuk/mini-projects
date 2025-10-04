@@ -64,38 +64,25 @@ function App() {
     setChatHistory(updatedHistory);
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.ANTHROPIC_API_KEY || '',
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-sonnet-20240229',
-          max_tokens: 1000,
-          system: `You are a helpful AI assistant with access to the user's notes. Here are all the user's notes:\n\n${notes.map(note => `[${new Date(note.timestamp).toLocaleString()}] ${note.text}`).join('\n\n')}\n\nUse this context to help answer questions about their notes.`,
-          messages: [
-            ...chatHistory.map(msg => ({
-              role: msg.role,
-              content: msg.content
-            })),
-            { role: 'user', content: message }
-          ]
-        })
-      });
+      const result = await window.electronAPI.sendToClaude(message, notes, chatHistory);
 
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
+      let assistantMessage: ChatMessage;
+
+      if (result.success && result.content) {
+        assistantMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: result.content,
+          timestamp: Date.now()
+        };
+      } else {
+        assistantMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `Sorry, I encountered an error: ${result.error || 'Unknown error'}. Please check your API key and try again.`,
+          timestamp: Date.now()
+        };
       }
-
-      const data = await response.json();
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.content[0].text,
-        timestamp: Date.now()
-      };
 
       const finalHistory = await window.electronAPI.saveChatMessage(assistantMessage);
       setChatHistory(finalHistory);

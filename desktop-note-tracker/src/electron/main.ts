@@ -1,6 +1,10 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } from 'electron';
 import Store from 'electron-store';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 interface WindowBounds {
   x: number;
@@ -240,4 +244,47 @@ ipcMain.handle('export-notes', (_, format: 'json' | 'markdown') => {
 
 ipcMain.handle('get-window-state', () => {
   return { isExpanded };
+});
+
+ipcMain.handle('send-to-claude', async (_, message: string, notes: any[], chatHistory: any[]) => {
+  try {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('API Key loaded:', apiKey ? `${apiKey.substring(0, 20)}...` : 'NOT FOUND');
+
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY not found in environment variables');
+    }
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: 1000,
+        system: `You are a helpful AI assistant with access to the user's notes. Here are all the user's notes:\n\n${notes.map((note: any) => `[${new Date(note.timestamp).toLocaleString()}] ${note.text}`).join('\n\n')}\n\nUse this context to help answer questions about their notes.`,
+        messages: [
+          ...chatHistory.map((msg: any) => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          { role: 'user', content: message }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API Error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    return { success: true, content: data.content[0].text };
+  } catch (error: any) {
+    console.error('Claude API Error:', error);
+    return { success: false, error: error.message };
+  }
 });

@@ -34,10 +34,48 @@ export class SyncService {
   setUserId(userId: string | null) {
     this.userId = userId
     if (userId) {
+      this.fixOldNoteIds() // Fix any notes with timestamp IDs
       this.startPeriodicSync()
       this.syncFromCloud() // Initial sync when user logs in
     } else {
       this.stopPeriodicSync()
+    }
+  }
+
+  // Fix old notes that have timestamp IDs instead of UUIDs
+  private fixOldNoteIds() {
+    const notes = this.store.get('notes', []) as LocalNote[]
+    const pendingNotes = this.store.get('pendingNotes', []) as LocalNote[]
+    let hasChanges = false
+
+    const generateUUID = () => {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0
+        const v = c === 'x' ? r : (r & 0x3 | 0x8)
+        return v.toString(16)
+      })
+    }
+
+    // Check if an ID is a timestamp (all digits)
+    const isTimestampId = (id: string) => /^\d+$/.test(id)
+
+    // Fix regular notes
+    const fixedNotes = notes.map(note => {
+      if (isTimestampId(note.id)) {
+        hasChanges = true
+        return { ...note, id: generateUUID() }
+      }
+      return note
+    })
+
+    // Clear pending notes with timestamp IDs (they can't sync anyway)
+    const fixedPending = pendingNotes.filter(note => !isTimestampId(note.id))
+
+    if (hasChanges || pendingNotes.length !== fixedPending.length) {
+      this.store.set('notes', fixedNotes)
+      this.store.set('pendingNotes', fixedPending)
+      this.syncState.pendingNotes = fixedPending
+      console.log('Fixed old notes with timestamp IDs')
     }
   }
 

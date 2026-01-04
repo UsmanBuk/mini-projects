@@ -12,7 +12,7 @@
     "@anthropic-ai/sdk": "^0.71.2",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.86.2",
-    "framer-motion": "^12.23.22",
+    "framer-motion": "^12.23.26",
     "lucide-react": "^0.544.0",
     "next": "15.5.9",
     "react": "19.1.0",
